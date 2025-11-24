@@ -275,6 +275,7 @@ body {
 	overflow: hidden;
 }
 
+
 .assistant-layout {
 	flex: 1;
 	display: flex;
@@ -284,6 +285,31 @@ body {
 	height: calc(100vh - var(--app-header-height, 0px));
 	width: 100%;
 	overflow: hidden;
+	position: relative;
+	transition: gap 0.35s ease;
+}
+
+.assistant-layout.workspace-collapsed {
+	gap: 0;
+}
+
+.assistant-layout.workspace-collapsed .assistant-chat-panel {
+	flex: 1;
+	border-right: none;
+}
+
+.assistant-layout.workspace-collapsed .assistant-workspace-panel {
+	flex: 0 0 0;
+	max-width: 0;
+	padding: 0;
+	border: 0;
+	margin: 0;
+	opacity: 0;
+	transform: translateX(48px);
+}
+
+.assistant-layout.workspace-expanded .assistant-chat-panel {
+	flex: 1 1 50%;
 }
 
 .assistant-chat-panel,
@@ -292,25 +318,44 @@ body {
 	flex-direction: column;
 }
 
+
 .assistant-chat-panel {
-	flex: 0 0 34%;
+	flex: 1 1 50%;
 	border-right: 1px solid var(--border-soft);
 	display: flex;
 	flex-direction: column;
 	background: var(--bg-panel);
 	min-height: 0;
+	min-width: 0;
 	overflow: hidden;
+	transition: flex 0.35s ease;
 }
 
 .assistant-workspace-panel {
-	flex: 1;
+	flex: 0 0 0;
 	display: flex;
 	flex-direction: column;
-	padding: 32px;
+	padding: 0;
 	background: var(--bg-panel);
 	border-radius: var(--radius-lg);
-	border: 1px solid var(--border-light);
+	border: 0;
 	min-height: 0;
+	max-width: 0;
+	opacity: 0;
+	transform: translateX(48px);
+	pointer-events: none;
+	overflow: hidden;
+	transition: flex 0.35s ease, max-width 0.35s ease, opacity 0.35s ease, transform 0.35s ease, padding 0.35s ease, border 0.35s ease;
+}
+
+.assistant-workspace-panel.is-active {
+	flex: 1 1 50%;
+	padding: 32px;
+	border: 1px solid var(--border-light);
+	max-width: none;
+	opacity: 1;
+	transform: translateX(0);
+	pointer-events: auto;
 	overflow: auto;
 }
 

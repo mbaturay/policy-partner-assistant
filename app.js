@@ -7,7 +7,8 @@ const DEMO_USER = {
 const STORAGE_KEYS = {
 	user: "ppa_user",
 	chats: "ppa_chats",
-	messages: "ppa_messages"
+	messages: "ppa_messages",
+	artifacts: "ppa_artifacts"
 };
 
 const PROMPT_LIBRARY = [
@@ -46,6 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function cacheDom() {
 	state.dom.app = document.getElementById("app");
 	state.dom.sidebar = document.querySelector(".sidebar");
+	state.dom.assistantLayout = document.querySelector(".assistant-layout");
 	state.dom.chatList = document.getElementById("chat-list");
 	state.dom.promptLibrary = document.getElementById("prompt-library");
 	state.dom.chatTitle = document.getElementById("chat-title");
@@ -59,6 +61,7 @@ function cacheDom() {
 }
 
 function bootstrapSession() {
+	hydrateArtifactsFromStorage();
 	const storedUser = safeParse(localStorage.getItem(STORAGE_KEYS.user));
 	if (storedUser?.email) {
 		state.currentUser = storedUser;
@@ -376,10 +379,25 @@ function renderChat() {
 function renderWorkspaceForActiveArtifact() {
 	const panel = state.dom.workspacePanel;
 	if (!panel) return;
+	const layout = state.dom.assistantLayout;
 	const artifact = activeArtifactId ? getArtifactById(activeArtifactId) : null;
 	if (!artifact) {
-		panel.innerHTML = buildWorkspaceEmptyState();
+		panel.innerHTML = "";
+		panel.classList.remove("is-active");
+		panel.classList.add("is-hidden");
+		panel.setAttribute("aria-hidden", "true");
+		if (layout) {
+			layout.classList.add("workspace-collapsed");
+			layout.classList.remove("workspace-expanded");
+		}
 		return;
+	}
+	panel.classList.remove("is-hidden");
+	panel.classList.add("is-active");
+	panel.removeAttribute("aria-hidden");
+	if (layout) {
+		layout.classList.remove("workspace-collapsed");
+		layout.classList.add("workspace-expanded");
 	}
 	const renderer = WORKSPACE_RENDERERS[artifact.type] || renderGenericWorkspace;
 	panel.innerHTML = renderer(artifact);
@@ -1579,6 +1597,19 @@ function normalizeMessage(message = {}) {
 	};
 }
 
+function normalizeArtifact(artifact = {}) {
+	if (!artifact.id) return null;
+	return {
+		id: artifact.id,
+		type: artifact.type || "summary",
+		title: artifact.title || "Untitled artifact",
+		summary: artifact.summary || "",
+		createdAt: artifact.createdAt || Date.now(),
+		updatedAt: artifact.updatedAt || Date.now(),
+		data: artifact.data ?? null
+	};
+}
+
 function flattenMessagesFromChats(chats = []) {
 	return chats.flatMap((chat) => {
 		if (!Array.isArray(chat?.messages)) {
@@ -1602,6 +1633,25 @@ function persistMessages() {
 	} catch (error) {
 		console.warn("Failed to persist messages", error);
 	}
+}
+
+function persistArtifacts() {
+	try {
+		localStorage.setItem(STORAGE_KEYS.artifacts, JSON.stringify(assistantArtifacts));
+	} catch (error) {
+		console.warn("Failed to persist artifacts", error);
+	}
+}
+
+function hydrateArtifactsFromStorage() {
+	const storedArtifacts = loadCollectionFromStorage(STORAGE_KEYS.artifacts);
+	assistantArtifacts.length = 0;
+	storedArtifacts.forEach((artifact) => {
+		const normalized = normalizeArtifact(artifact);
+		if (normalized) {
+			assistantArtifacts.push(normalized);
+		}
+	});
 }
 
 function generateAssistantReply(userText) {
@@ -1720,6 +1770,13 @@ function attachArtifactLinkInteractions(container, message) {
 		return;
 	}
 	openButton.addEventListener("click", () => {
+		const artifact = getArtifactById(message.artifactId);
+		if (!artifact) {
+			appendAssistantNotice(message.chatId, "This workspace is no longer available. Re-run the workflow to regenerate it.");
+			openButton.disabled = true;
+			openButton.textContent = "Workspace unavailable";
+			return;
+		}
 		setActiveArtifact(message.artifactId);
 	});
 }
@@ -2321,6 +2378,7 @@ function createArtifact(artifact = {}) {
 		data: artifact.data ?? null
 	};
 	assistantArtifacts.push(entry);
+	persistArtifacts();
 	return entry.id;
 }
 
@@ -2334,6 +2392,7 @@ function updateArtifact(artifactId, updater = () => ({})) {
 	if (!artifact) return null;
 	const updates = typeof updater === "function" ? updater(artifact) : updater;
 	Object.assign(artifact, updates, { updatedAt: Date.now() });
+	persistArtifacts();
 	renderChat();
 	return artifact;
 }
