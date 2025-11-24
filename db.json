@@ -1,0 +1,33 @@
+{
+	"users": [
+		{
+			"id": "u1",
+			"email": "compliance.officer@agency.gov",
+			"name": "Jordan Martinez",
+			"role": "Accessibility & Compliance Officer"
+		}
+	],
+	"chats": [
+		{
+			"id": "c1",
+			"title": "Welcome to Policy Partner",
+			"createdAt": "2025-01-01T12:00:00Z"
+		}
+	],
+	"messages": [
+		{
+			"chatId": "c1",
+			"id": "m1",
+			"role": "assistant",
+			"type": "text",
+			"content": "Welcome to Policy Partner Assistant. I can help you analyze new requirements, generate tasks, and track compliance.",
+			"createdAt": "2025-01-01T12:00:01Z"
+		}
+	],
+	"workflows": [],
+	"existingPolicy": {
+		"id": "p1",
+		"title": "City Digital Accessibility Policy",
+		"content": "Existing policy text goes here..."
+	}
+}

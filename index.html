@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Policy Partner Assistant</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <aside class="sidebar">
+        <header class="sidebar__header">
+          <div class="sidebar__brand" aria-label="Slalom">
+            <span class="sidebar__logo">slalom</span>
+          </div>
+          <button class="btn btn-primary" type="button">New chat</button>
+        </header>
+
+        <div class="sidebar__body">
+          <label class="sidebar__section" for="chat-search">
+            <input
+              id="chat-search"
+              type="search"
+              placeholder="Search chats"
+              aria-label="Search chats"
+            />
+          </label>
+
+          <section class="sidebar__section">
+            <div class="sidebar__section-title">Conversations</div>
+            <div id="chat-list" class="sidebar__list" aria-live="polite"></div>
+          </section>
+
+          <section class="sidebar__section">
+            <div class="sidebar__section-title">Prompt library</div>
+            <div id="prompt-library" class="sidebar__list"></div>
+          </section>
+        </div>
+
+        <footer class="sidebar__footer">
+          <small>&copy; Policy Partner Assistant</small>
+        </footer>
+      </aside>
+
+      <div class="assistant-layout">
+        <div class="assistant-chat-panel" id="assistant-chat-panel">
+          <main class="chat-root">
+            <header class="chat-header">
+              <button class="sidebar-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">
+                Menu
+              </button>
+              <h2 id="chat-title">New Conversation</h2>
+            </header>
+
+            <section id="chat-messages" class="chat-messages" aria-live="polite"></section>
+
+            <footer class="chat-input-area">
+              <div id="chat-suggestions" class="chat-suggestions"></div>
+              <form class="chat-form" aria-label="Send message">
+                <div class="input-shell">
+                  <textarea
+                    id="chat-input"
+                    name="message"
+                    rows="1"
+                    placeholder="Share your policy question..."
+                    aria-label="Chat input"
+                    required
+                  ></textarea>
+                  <button class="btn btn-primary" type="submit">Send</button>
+                </div>
+              </form>
+            </footer>
+          </main>
+        </div>
+
+        <div class="assistant-workspace-panel" id="assistant-workspace-panel">
+          <div class="workspace-empty" role="status">No workspace open yet</div>
+        </div>
+      </div>
+    </div>
+    <script src="app.js" defer></script>
+  </body>
+</html>
